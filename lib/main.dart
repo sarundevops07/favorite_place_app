@@ -1,6 +1,7 @@
+import 'package:favorite_place_app/presentation/screeen/add_new_place_screen.dart';
 import 'package:favorite_place_app/presentation/screeen/your_place_screen.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 final colorScheme = ColorScheme.fromSeed(
@@ -36,10 +37,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Great Places',
-      theme: theme,
-      home: const YourPlaceScreen(),
+    return ProviderScope(
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Great Places',
+        theme: theme,
+        home: const YourPlaceScreen(),
+        routes: {
+          "AddNewPlaceScreen": (context) => const AddNewPlaceScreen(),
+        },
+      ),
     );
   }
 }
