@@ -26,5 +26,6 @@ class PlaceModel {
     required this.title,
     required this.image,
     required this.location,
-  }) : id = uuid;
+    String? id,
+  }) : id = id ?? uuid;
 }

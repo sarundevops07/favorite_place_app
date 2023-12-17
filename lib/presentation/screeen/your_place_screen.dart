@@ -3,11 +3,27 @@ import 'package:favorite_place_app/provider/places.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class YourPlaceScreen extends ConsumerWidget {
+class YourPlaceScreen extends ConsumerStatefulWidget {
   const YourPlaceScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<YourPlaceScreen> createState() => _YourPlaceScreenState();
+}
+
+class _YourPlaceScreenState extends ConsumerState<YourPlaceScreen> {
+  late Future<void> _placesFuture;
+  @override
+  void initState() {
+    _placesFuture = ref.read(
+      (placeProvider.notifier).select(
+        (value) => value.loadPlace(),
+      ),
+    );
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final places = ref.watch(placeProvider);
     return Scaffold(
       appBar: AppBar(
@@ -28,7 +44,16 @@ class YourPlaceScreen extends ConsumerWidget {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             )
-          : PlacesList(places: places),
+          : FutureBuilder(
+              future: _placesFuture,
+              builder: (context, snapshot) => snapshot.connectionState ==
+                      ConnectionState.waiting
+                  ? Center(
+                      child: CircularProgressIndicator(
+                          backgroundColor: Theme.of(context).colorScheme.error),
+                    )
+                  : PlacesList(places: places),
+            ),
     );
   }
 }
