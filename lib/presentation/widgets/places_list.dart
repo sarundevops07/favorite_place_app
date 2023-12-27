@@ -11,6 +11,73 @@ class PlacesList extends ConsumerWidget {
   });
 
   final List<PlaceModel> places;
+  void _deletePlace(BuildContext context, WidgetRef ref, int index) {
+    int deletedIndex = index;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Place'),
+          content: const Text('Are you sure you want to delete this place?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text(
+                'Cancel',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium!
+                    .copyWith(color: Theme.of(context).colorScheme.onPrimary),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                final place = places[index];
+                final placeIdToDelete = place.id;
+                // Call the delete function
+                ref.read(
+                  placeProvider.notifier.select(
+                    (value) => value.deletePlace(placeIdToDelete),
+                  ),
+                );
+                // show snackbar
+                showSnackBar(context, ref, deletedIndex);
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text(
+                'Delete',
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onError,
+                    ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showSnackBar(BuildContext context, WidgetRef ref, int index) {
+    final place = places[index];
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 2),
+        content: Text(
+          'Your favorite place ${place.title} is deleted',
+        ),
+        action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () {
+              ref.read(placeProvider.notifier.select(
+                (value) => value.insertPlace(place, index),
+              ));
+            }),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,53 +88,7 @@ class PlacesList extends ConsumerWidget {
           final place = places[index];
           return ListTile(
             onLongPress: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Delete Place'),
-                    content: const Text(
-                        'Are you sure you want to delete this place?'),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(); // Close the dialog
-                        },
-                        child: Text(
-                          'Cancel',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium!
-                              .copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          final placeIdToDelete = places[index].id;
-                          ref.read(
-                            placeProvider.notifier.select(
-                              (value) => value.deletePlace(placeIdToDelete),
-                            ),
-                          );
-                          // Call the delete function
-                          Navigator.of(context).pop(); // Close the dialog
-                        },
-                        child: Text(
-                          'Delete',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(
-                                color: Theme.of(context).colorScheme.onError,
-                              ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              );
+              _deletePlace(context, ref, index);
             },
             leading: CircleAvatar(
               radius: 26,

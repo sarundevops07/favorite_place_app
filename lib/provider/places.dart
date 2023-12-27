@@ -94,16 +94,38 @@ class FavoriteNotifier extends StateNotifier<List<PlaceModel>> {
       return;
     }
     final newPlace = HivePlaceModel(
-      id: UniqueKey()
-          .toString(), // You might want to use a different method to generate IDs
-      title: title, address: location.address, imagePath: copiedImage.path,
-      latitude: location.latitude, longitude: location.longitude,
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: title,
+      address: location.address,
+      imagePath: copiedImage.path,
+      latitude: location.latitude,
+      longitude: location.longitude,
     );
 
     final box = await _getHiveBox();
     await box.put(newPlace.id, newPlace);
 
     state = [...state, newPlace.toPlaceModel()];
+  }
+
+  Future<void> insertPlace(PlaceModel place, int index) async {
+    final box = await _getHiveBox();
+    final List<HivePlaceModel> places = box.values.toList();
+
+    final hivePlace = HivePlaceModel(
+      id: place.id,
+      title: place.title,
+      address: place.location.address,
+      imagePath: place.image.path,
+      latitude: place.location.latitude,
+      longitude: place.location.longitude,
+    );
+
+    places.insert(index, hivePlace);
+
+    await box.putAll({for (var place in places) place.id: place});
+
+    state = places.map((hivePlace) => hivePlace.toPlaceModel()).toList();
   }
 
   Future<void> deletePlace(String placeId) async {

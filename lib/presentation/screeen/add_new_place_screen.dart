@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:favorite_place_app/models/place.dart';
 import 'package:favorite_place_app/presentation/widgets/image_input.dart';
 import 'package:favorite_place_app/presentation/widgets/location_input.dart';
@@ -25,10 +24,49 @@ class _AddNewPlaceScreenState extends ConsumerState<AddNewPlaceScreen> {
         _selectedLocation != null) {
       ref.read(
         placeProvider.notifier.select(
-          (value) => value.addPlace(title, _selectedImage!, _selectedLocation!),
+          (value) => value.addPlace(
+            title,
+            _selectedImage!,
+            _selectedLocation!,
+          ),
+        ),
+      );
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "New place added",
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+          ),
+          duration: const Duration(
+            seconds: 2,
+          ),
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       );
       Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "All fields can't empty",
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+          ),
+          duration: const Duration(
+            seconds: 1,
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
     }
   }
 
@@ -51,13 +89,17 @@ class _AddNewPlaceScreenState extends ConsumerState<AddNewPlaceScreen> {
                 ),
               ),
               const SizedBox(height: 7),
-              ImageInput(onPickedImage: (image) {
-                _selectedImage = image;
-              }),
+              ImageInput(
+                onPickedImage: (image) {
+                  _selectedImage = image;
+                },
+              ),
               const SizedBox(height: 7),
-              LocationInput(onPickedLocation: (location) {
-                _selectedLocation = location;
-              }),
+              LocationInput(
+                onPickedLocation: (location) {
+                  _selectedLocation = location;
+                },
+              ),
               const SizedBox(height: 7),
               SizedBox(
                 width: 130,
